@@ -2,9 +2,11 @@ import React from 'react';
 import axios from 'axios';
 import Papa from 'papaparse';
 
-import Info from "./Info/Info";
+import Info from './Info/Info';
+import Filters from './Filters/Filters';
 
 import * as S from './App.styles';
+import * as SCommon from './Common.styles';
 
 const DATA_URL = 'http://adverity-challenge.s3-website-eu-west-1.amazonaws.com/DAMKBAoDBwoDBAkOBAYFCw.csv';
 
@@ -14,6 +16,11 @@ interface DataRow {
   Campaign: string;
   Clicks: number;
   Impressions: number;
+}
+
+export interface IFilters {
+  Datasources: string[];
+  Campaign?: string;
 }
 
 enum CSVHeaders {
@@ -29,10 +36,11 @@ const addToTempArray = (tempArray: string[], value: string) => {
 };
 
 const App: React.FC = () => {
-  const [ loading, setLoading ] = React.useState<boolean>(true);
-  const [ data, setData ] = React.useState<DataRow[]>([]);
-  const [ datasources, setDatasources ] = React.useState<string[]>([]);
-  const [ campaigns, setCampaigns ] = React.useState<string[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [data, setData] = React.useState<DataRow[]>([]);
+  const [datasources, setDatasources] = React.useState<string[]>([]);
+  const [campaigns, setCampaigns] = React.useState<string[]>([]);
+  const [filters, setFilters] = React.useState<IFilters>({ Campaign: undefined, Datasources: [] });
 
   React.useEffect(() => {
     const getData = async () => {
@@ -59,7 +67,7 @@ const App: React.FC = () => {
             default:
               return value;
           }
-        }
+        },
       });
 
       setData(parsedData);
@@ -71,21 +79,40 @@ const App: React.FC = () => {
     getData();
   }, []);
 
+  const handleDatasourceFilterChange = React.useCallback(
+    (newDataSourceFilters: string[]) => {
+      setFilters({ ...filters, Datasources: newDataSourceFilters });
+    },
+    [filters]
+  );
+
+  const handleCampaignFilterChange = React.useCallback(
+    (name: string) => {
+      setFilters({ ...filters, Campaign: name });
+    },
+    [filters]
+  );
+
   return (
     <S.AppWrapper>
-      <S.Row>
+      <SCommon.Row>
         <S.Info>
           <Info />
         </S.Info>
-      </S.Row>
-      <S.Row>
+      </SCommon.Row>
+      <SCommon.Row>
         <S.Filters>
-          Filters
+          <Filters
+            loading={loading}
+            datasources={datasources}
+            campaigns={campaigns}
+            filters={filters}
+            onDatasourceFilterChange={handleDatasourceFilterChange}
+            onCampaignChange={handleCampaignFilterChange}
+          />
         </S.Filters>
-        <S.Chart>
-          Chart
-        </S.Chart>
-      </S.Row>
+        <S.Chart>Chart</S.Chart>
+      </SCommon.Row>
     </S.AppWrapper>
   );
 };

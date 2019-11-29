@@ -5,10 +5,6 @@ export const AppWrapper = styled.div`
   margin: 20px auto 0;
 `;
 
-export const Row = styled.div`
-  display: flex;
-`;
-
 export const Filters = styled.div`
   width: 400px;
   margin-right: 16px;
