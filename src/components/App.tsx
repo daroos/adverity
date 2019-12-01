@@ -4,18 +4,24 @@ import Papa from 'papaparse';
 
 import Info from './Info/Info';
 import Filters from './Filters/Filters';
+import Chart from './Chart/Chart';
+import { filterData, groupDataByDate } from '../helpers';
 
 import * as S from './App.styles';
 import * as SCommon from './Common.styles';
 
 const DATA_URL = 'http://adverity-challenge.s3-website-eu-west-1.amazonaws.com/DAMKBAoDBwoDBAkOBAYFCw.csv';
 
-interface DataRow {
-  Date: Date;
+export interface DataRow {
+  Date: string;
   Datasource: string;
   Campaign: string;
   Clicks: number;
   Impressions: number;
+}
+
+export interface DataGroupedByDate {
+  [index: string]: DataRow[];
 }
 
 export interface IFilters {
@@ -37,7 +43,7 @@ const addToTempArray = (tempArray: string[], value: string) => {
 
 const App: React.FC = () => {
   const [loading, setLoading] = React.useState<boolean>(true);
-  const [data, setData] = React.useState<DataRow[]>([]);
+  const [data, setData] = React.useState<DataGroupedByDate>({});
   const [datasources, setDatasources] = React.useState<string[]>([]);
   const [campaigns, setCampaigns] = React.useState<string[]>([]);
   const [filters, setFilters] = React.useState<IFilters>({ Campaign: undefined, Datasources: [] });
@@ -49,15 +55,16 @@ const App: React.FC = () => {
       let tempDatasources: string[] = [];
       let tempCampaigns: string[] = [];
 
-      const { data: parsedData } = Papa.parse(data, {
+      const { data: parsedData }: { data: DataRow[] } = Papa.parse(data, {
+        skipEmptyLines: true,
         header: true,
         transform(value: string, field: string | number): any {
           switch (field) {
             case CSVHeaders.DATE:
-              return new Date(value);
+              return value;
             case CSVHeaders.CLICKS:
             case CSVHeaders.IMPRESSIONS:
-              return parseInt(value);
+              return value ? parseInt(value) : 0;
             case CSVHeaders.DATASOURCE:
               tempDatasources = addToTempArray(tempDatasources, value);
               return value;
@@ -70,7 +77,7 @@ const App: React.FC = () => {
         },
       });
 
-      setData(parsedData);
+      setData(groupDataByDate(parsedData));
       setDatasources(tempDatasources);
       setCampaigns(tempCampaigns);
       setLoading(false);
@@ -93,6 +100,10 @@ const App: React.FC = () => {
     [filters]
   );
 
+  const filteredData = React.useMemo(() => {
+    return filterData(data, filters);
+  }, [filters, data]);
+
   return (
     <S.AppWrapper>
       <SCommon.Row>
@@ -111,7 +122,9 @@ const App: React.FC = () => {
             onCampaignChange={handleCampaignFilterChange}
           />
         </S.Filters>
-        <S.Chart>Chart</S.Chart>
+        <S.Chart>
+          <Chart data={filteredData} filters={filters} />
+        </S.Chart>
       </SCommon.Row>
     </S.AppWrapper>
   );
