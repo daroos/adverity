@@ -1,3 +1,8 @@
+# Notes and assumptions
+* I used TypeScript
+* I'd rather use Ramda over Lodash
+* I would handle errors better
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
