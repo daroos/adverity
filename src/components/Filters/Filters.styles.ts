@@ -15,3 +15,7 @@ export const DatasourceActiveFilters = styled.div`
 export const CampaignFilterWrapper = styled.div`
   margin-top: 24px;
 `;
+
+export const ApplyButton = styled.button`
+  margin-top: 24px;
+`;

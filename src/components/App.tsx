@@ -26,7 +26,7 @@ export interface DataGroupedByDate {
 
 export interface IFilters {
   Datasources: string[];
-  Campaign?: string;
+  Campaign: string;
 }
 
 enum CSVHeaders {
@@ -46,7 +46,7 @@ const App: React.FC = () => {
   const [data, setData] = React.useState<DataGroupedByDate>({});
   const [datasources, setDatasources] = React.useState<string[]>([]);
   const [campaigns, setCampaigns] = React.useState<string[]>([]);
-  const [filters, setFilters] = React.useState<IFilters>({ Campaign: undefined, Datasources: [] });
+  const [filters, setFilters] = React.useState<IFilters>({ Campaign: 'All', Datasources: [] });
 
   React.useEffect(() => {
     const getData = async () => {
@@ -86,23 +86,13 @@ const App: React.FC = () => {
     getData();
   }, []);
 
-  const handleDatasourceFilterChange = React.useCallback(
-    (newDataSourceFilters: string[]) => {
-      setFilters({ ...filters, Datasources: newDataSourceFilters });
-    },
-    [filters]
-  );
-
-  const handleCampaignFilterChange = React.useCallback(
-    (name: string) => {
-      setFilters({ ...filters, Campaign: name });
-    },
-    [filters]
-  );
+  const handleFiltersChange = React.useCallback((newFilters: IFilters) => {
+    setFilters(newFilters);
+  }, []);
 
   const filteredData = React.useMemo(() => {
-    return filterData(data, filters);
-  }, [filters, data]);
+    return filterData(data, filters, datasources);
+  }, [filters, data, datasources]);
 
   return (
     <S.AppWrapper>
@@ -118,8 +108,7 @@ const App: React.FC = () => {
             datasources={datasources}
             campaigns={campaigns}
             filters={filters}
-            onDatasourceFilterChange={handleDatasourceFilterChange}
-            onCampaignChange={handleCampaignFilterChange}
+            onFiltersChange={handleFiltersChange}
           />
         </S.Filters>
         <S.Chart>

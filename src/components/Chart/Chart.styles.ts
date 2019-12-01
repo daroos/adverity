@@ -4,6 +4,4 @@ export const Wrapper = styled.div`
   padding: 16px;
 `;
 
-export const Info = styled.div`
-  
-`;
+export const Info = styled.div``;

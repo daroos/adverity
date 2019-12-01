@@ -1,15 +1,14 @@
-import React from "react";
-import { IFilters } from "../../App";
+import React from 'react';
+import { IFilters } from '../../App';
 
 interface Props {
   filters: IFilters;
 }
 
 const ChartInfo: React.FC<Props> = ({ filters }) => {
-
   const renderDatasources = React.useMemo(() => {
     if (filters.Datasources.length === 0) {
-      return 'All datasources'
+      return 'All datasources';
     }
 
     return filters.Datasources.reduce((acc, curr, index) => {
@@ -18,11 +17,11 @@ const ChartInfo: React.FC<Props> = ({ filters }) => {
       }
 
       return `${acc} "${curr}"`;
-    }, "");
+    }, '');
   }, [filters.Datasources]);
 
   const renderCampaign = React.useMemo(() => {
-    if (!filters.Campaign) return "All Campaigns";
+    if (!filters.Campaign) return 'All Campaigns';
 
     return `Campaign ${filters.Campaign}`;
   }, [filters.Campaign]);
@@ -31,7 +30,7 @@ const ChartInfo: React.FC<Props> = ({ filters }) => {
     <>
       {renderDatasources}; {renderCampaign}
     </>
-  )
+  );
 };
 
 export default ChartInfo;

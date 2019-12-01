@@ -5,19 +5,22 @@ import { transformDataForChart } from '../../helpers/dataTransformers';
 import { DataGroupedByDate, IFilters } from '../App';
 
 import * as S from './Chart.styles';
-import ChartInfo from "./ChartInfo/ChartInfo";
+import ChartInfo from './ChartInfo/ChartInfo';
 
 const options = {
   scales: {
-    yAxes: [{
-      id: 'Clicks',
-      type: 'linear',
-      position: 'left',
-    }, {
-      id: 'Impressions',
-      type: 'linear',
-      position: 'right',
-    }],
+    yAxes: [
+      {
+        id: 'Clicks',
+        type: 'linear',
+        position: 'left',
+      },
+      {
+        id: 'Impressions',
+        type: 'linear',
+        position: 'right',
+      },
+    ],
     xAxes: [
       {
         maxTicksLimit: 2,

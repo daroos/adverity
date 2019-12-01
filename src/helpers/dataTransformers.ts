@@ -1,14 +1,35 @@
-import { IFilters, DataGroupedByDate, DataRow } from "../components/App";
 import groupBy from 'lodash/fp/groupBy';
-import { convertStringToDate, formatDateForChart } from "./date";
+
+import { IFilters, DataGroupedByDate, DataRow } from '../components/App';
+import { convertStringToDate, formatDateForChart } from './date';
 
 export const groupDataByDate = (data: DataRow[]) => {
   return groupBy<DataRow>(x => x.Date, data);
 };
 
-export const filterData = (data: DataGroupedByDate, filters: IFilters) => {
-  // TODO add filters handling
-  return data;
+export const filterData = (data: DataGroupedByDate, filters: IFilters, datasources: string[]) => {
+  if (
+    filters.Campaign === 'All' &&
+    (filters.Datasources.length === 0 || filters.Datasources.length === datasources.length)
+  ) {
+    return data;
+  }
+
+  const filteredData = Object.entries(data).reduce((acc, [key, dataRows]) => {
+    const filteredRows = dataRows.filter(dataRow => {
+      const isCampaignSelected = filters.Campaign === 'All' || filters.Campaign === dataRow.Campaign;
+      const isDatasourceSelected = filters.Datasources.includes(dataRow.Datasource);
+
+      return isCampaignSelected && isDatasourceSelected;
+    });
+
+    return {
+      ...acc,
+      [key]: filteredRows,
+    };
+  }, {});
+
+  return filteredData;
 };
 
 interface Dataset {
@@ -49,12 +70,15 @@ export const transformDataForChart = (data: DataGroupedByDate): any => {
   };
 
   return Object.entries(data).reduce((parentAcc, [key, parentCurr]) => {
-    const { Clicks, Impressions } = parentCurr.reduce((acc, curr) => {
-      return {
-        Clicks: acc.Clicks + curr.Clicks,
-        Impressions: acc.Impressions + curr.Impressions,
-      }
-    }, { Clicks: 0, Impressions: 0 });
+    const { Clicks, Impressions } = parentCurr.reduce(
+      (acc, curr) => {
+        return {
+          Clicks: acc.Clicks + curr.Clicks,
+          Impressions: acc.Impressions + curr.Impressions,
+        };
+      },
+      { Clicks: 0, Impressions: 0 }
+    );
 
     return {
       ...parentAcc,
@@ -67,8 +91,8 @@ export const transformDataForChart = (data: DataGroupedByDate): any => {
         {
           ...parentAcc.datasets[1],
           data: [...parentAcc.datasets[1].data, Impressions],
-        }
-      ]
-    }
+        },
+      ],
+    };
   }, emptyData);
 };

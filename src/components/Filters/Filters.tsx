@@ -1,42 +1,52 @@
 import React, { SyntheticEvent } from 'react';
+
 import { IFilters } from '../App';
+import RemovableFilter from './RemovableFilter/RemovableFilter';
 
 import * as S from './Filters.styles';
 import * as SCommon from '../Common.styles';
-import RemovableFilter from './RemovableFilter/RemovableFilter';
 
 interface Props {
   loading: boolean;
   datasources: string[];
   campaigns: string[];
   filters: IFilters;
-  onDatasourceFilterChange: (newDatasourceFilter: string[]) => void;
-  onCampaignChange: (campaign: string) => void;
+  onFiltersChange: (newFilters: IFilters) => void;
 }
 
-const Filters: React.FC<Props> = ({
-  loading,
-  datasources,
-  campaigns,
-  filters,
-  onDatasourceFilterChange,
-  onCampaignChange,
-}) => {
+const Filters: React.FC<Props> = ({ loading, datasources, campaigns, filters, onFiltersChange }) => {
+  const [newFilters, setNewFilters] = React.useState<IFilters>(filters);
+
   const addDatasourceFilter = React.useCallback(
     (e: SyntheticEvent<HTMLSelectElement>) => {
-      onDatasourceFilterChange([...filters.Datasources, e.currentTarget.value]);
+      setNewFilters({
+        ...newFilters,
+        Datasources: [...newFilters.Datasources, e.currentTarget.value],
+      });
     },
-    [filters.Datasources, onDatasourceFilterChange]
+    [newFilters]
   );
 
   const removeDatasourceFilter = React.useCallback(
     (datasourceToRemove: string) => {
-      const newFilters = filters.Datasources.filter(datasourceName => datasourceName !== datasourceToRemove);
-
-      onDatasourceFilterChange(newFilters);
+      setNewFilters({
+        ...newFilters,
+        Datasources: newFilters.Datasources.filter(datasourceName => datasourceName !== datasourceToRemove),
+      });
     },
-    [filters.Datasources, onDatasourceFilterChange]
+    [newFilters]
   );
+
+  const handleCampaignChange = React.useCallback(
+    (e: SyntheticEvent<HTMLSelectElement>) => {
+      setNewFilters({ ...newFilters, Campaign: e.currentTarget.value });
+    },
+    [newFilters]
+  );
+
+  const applyFilters = React.useCallback(() => {
+    onFiltersChange(newFilters);
+  }, [newFilters, onFiltersChange]);
 
   if (loading) return <S.Wrapper>Loading... </S.Wrapper>;
 
@@ -46,9 +56,9 @@ const Filters: React.FC<Props> = ({
       <SCommon.Row>
         <S.DatasourceSelect>
           <SCommon.Label htmlFor="Datasource">Datasource</SCommon.Label>
-          <select id="Datasource" onChange={addDatasourceFilter}>
+          <select id="Datasource" onChange={addDatasourceFilter} multiple>
             {datasources
-              .filter(datasource => !filters.Datasources.includes(datasource))
+              .filter(datasource => !newFilters.Datasources.includes(datasource))
               .map(datasource => (
                 <option key={datasource}>{datasource}</option>
               ))}
@@ -56,8 +66,8 @@ const Filters: React.FC<Props> = ({
         </S.DatasourceSelect>
         <S.DatasourceActiveFilters>
           <SCommon.Label>Active filters</SCommon.Label>
-          {filters.Datasources.length
-            ? filters.Datasources.map(datasourceFilter => (
+          {newFilters.Datasources.length
+            ? newFilters.Datasources.map(datasourceFilter => (
                 <RemovableFilter name={datasourceFilter} onRemove={removeDatasourceFilter} />
               ))
             : 'none'}
@@ -67,13 +77,17 @@ const Filters: React.FC<Props> = ({
       <SCommon.Row>
         <S.CampaignFilterWrapper>
           <SCommon.Label htmlFor="Campaign">Campaign</SCommon.Label>
-          <select onChange={(e: SyntheticEvent<HTMLSelectElement>) => onCampaignChange(e.currentTarget.value)}>
-            <option value={undefined}>All</option>
+          <select onChange={handleCampaignChange}>
+            <option value="All">All</option>
             {campaigns.map(campaign => (
               <option key={campaign}>{campaign}</option>
             ))}
           </select>
         </S.CampaignFilterWrapper>
+      </SCommon.Row>
+
+      <SCommon.Row>
+        <S.ApplyButton onClick={applyFilters}>Apply</S.ApplyButton>
       </SCommon.Row>
     </S.Wrapper>
   );
