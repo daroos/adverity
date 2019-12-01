@@ -1,5 +1,6 @@
 # Notes and assumptions
 * I used TypeScript
+* I would write tests both for components and helper funtions (preferable with React Testing Library)
 * I'd rather use Ramda over Lodash
 * I would handle errors better
 
