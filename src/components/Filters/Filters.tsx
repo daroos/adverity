@@ -68,7 +68,7 @@ const Filters: React.FC<Props> = ({ loading, datasources, campaigns, filters, on
           <SCommon.Label>Active filters</SCommon.Label>
           {newFilters.Datasources.length
             ? newFilters.Datasources.map(datasourceFilter => (
-                <RemovableFilter name={datasourceFilter} onRemove={removeDatasourceFilter} />
+                <RemovableFilter key={datasourceFilter} name={datasourceFilter} onRemove={removeDatasourceFilter} />
               ))
             : 'none'}
         </S.DatasourceActiveFilters>

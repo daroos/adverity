@@ -4,7 +4,6 @@ export const convertStringToDate = (date: string) => {
 };
 
 export const formatDateForChart = (date: Date) => {
-  debugger;
   const dayFormatter = new Intl.DateTimeFormat('en', { day: 'numeric' });
   const day = dayFormatter.format(date);
 

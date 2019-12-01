@@ -18,7 +18,7 @@ export const filterData = (data: DataGroupedByDate, filters: IFilters, datasourc
   const filteredData = Object.entries(data).reduce((acc, [key, dataRows]) => {
     const filteredRows = dataRows.filter(dataRow => {
       const isCampaignSelected = filters.Campaign === 'All' || filters.Campaign === dataRow.Campaign;
-      const isDatasourceSelected = filters.Datasources.includes(dataRow.Datasource);
+      const isDatasourceSelected = filters.Datasources.length === 0 || filters.Datasources.includes(dataRow.Datasource);
 
       return isCampaignSelected && isDatasourceSelected;
     });

@@ -50,7 +50,14 @@ const App: React.FC = () => {
 
   React.useEffect(() => {
     const getData = async () => {
-      const { data } = await axios.get(DATA_URL);
+      let data;
+
+      try {
+        const axiosResponse = await axios.get(DATA_URL);
+        data = axiosResponse.data;
+      } catch (e) {
+        console.log('connection error');
+      }
 
       let tempDatasources: string[] = [];
       let tempCampaigns: string[] = [];
